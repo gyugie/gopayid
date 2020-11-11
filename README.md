@@ -1,4 +1,4 @@
-# [Gojek] Gopay Api PHP Class (Un-Official)
+# [Gojek] GopayID Api PHP Class (Un-Official)
 Repository Berikut Ini Merupakan Porting Dari [GOJEK](https://github.com/ridwanfathin/gojek) dan (https://github.com/namdevel/gopay-api) Untuk PHP 
 
 [![CodeFactor](https://www.codefactor.io/repository/github/mugypleci/gopay-api/badge)](https://www.codefactor.io/repository/github/mugypleci/gopay-api)
@@ -13,7 +13,7 @@ Compliant with the Nov 10, 2020 Gojek API update.
 ------------
 - [x] LoginNumberPhone
 - [x] getAccessToken
-- [x] transferGopay
+- [x] transferGopayID
 - [x] transferBank
 - [x] getHistory
 - [x] getProfile
@@ -25,67 +25,67 @@ Compliant with the Nov 10, 2020 Gojek API update.
 
 ### Dokumentasi
 
-#### Langkah Untuk Menjalankan Gopay API
+#### Langkah Untuk Menjalankan GopayID API
 ##### Ambil Paket Pada Composer
 ```php
-composer require mugypleci/gopay
+composer require gyugie/gopayid
 ```
 
 ##### Jika Di Jalankan Dengan Native
 ```php
 require 'vendor/autoload.php';
-use Mugypleci\Gopay;
+use Gyugie\GopayID;
 
-$gopay = new Gopay();
+$gopay = new GopayID();
 ```
 
-#### Fitur Akun Pengguna Gopay
+#### Fitur Akun Pengguna GopayID
 ##### Login Dengan Nomor Handphone
 ```php
 $loginToken = $gopay->LoginNumberPhone('<mobilePhone>')->getResult();
 ```
-##### Login Pada Gopay Untuk Mendapatkan Access Token
+##### Login Pada GopayID Untuk Mendapatkan Access Token
 ```php
 $authToken = $gopay->getAuthToken('<loginToken>', '<OTP>')->getResult();
 ```
 ##### Menampilkan Informasi Akun Pengguna
 ```php
-$gopay = new Gopay('<access_token>');
+$gopay = new GopayID('<access_token>');
 $result = $gopay->getProfile()->getResult();
 ```
 ##### Transfer Ke Sesama GOPAY
 ```php
-$gopay = new Gopay('<access_token>');
-$result = $gopay->transferGopay('<phoneNumber>', '<amount>', '<pin>')->getResult();
+$gopay = new GopayID('<access_token>');
+$result = $gopay->transferGopayID('<phoneNumber>', '<amount>', '<pin>')->getResult();
 ```
 ##### Transfer Melalui Bank
 ```php
-$gopay = new Gopay('<access_token>');
+$gopay = new GopayID('<access_token>');
 $result = $gopay->transferBank('<bankCode>', '<bankNumber>', '<amount>', '<pin>')->getResult();
 ```
 ##### Mendapatkan List Bank
 ```php
-$gopay = new Gopay('<access_token>');
+$gopay = new GopayID('<access_token>');
 $result = $gopay->getBankList()->getResult();
 ```
 ##### Mendapatkan History Transaksi
 ```php
-$gopay = new Gopay('<access_token>');
+$gopay = new GopayID('<access_token>');
 $result = $gopay->getHistoryTransaction()->getResult();
 ```
 ##### Menampilkan Profile User
 ```php
-$gopay = new Gopay('<access_token>');
+$gopay = new GopayID('<access_token>');
 $result = $gopay->getBalance()->getResult();
 ```
 ##### Mendapatkan Qrid
 ```php
-$gopay = new Gopay('<access_token>');
+$gopay = new GopayID('<access_token>');
 $result = $gopay->getQrid('<phoneNumber>')->getResult();
 ```
 ##### Mendapatkan Nama Bank Account
 ```php
-$gopay = new Gopay('<access_token>');
+$gopay = new GopayID('<access_token>');
 $result = $gopay->getBankAccountName('<bankCode>', '<bankNumber>')->getResult();
 ```
 
