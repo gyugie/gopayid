@@ -1,0 +1,23 @@
+{
+    "name": "gyugie/gopayid",
+    "description": "Un-Official GopayID API Wrapper",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Mugiono Arif Saputra",
+            "email": "mugypleci@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4" : {
+          "Gyugie\\": "src"
+        }
+    },
+    "require": {
+        "php": "^7.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7"
+    }
+}
