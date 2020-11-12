@@ -216,7 +216,7 @@ class GopayID
      * @return DefaultResponse|Response\WalletResponse
      */
 	
-    public function LoginNumberPhone($phoneNumber)
+    public function loginNumberPhone($phoneNumber)
     {
         $payload = array(
             'client_id' => self::clientId,
