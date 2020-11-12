@@ -5,9 +5,9 @@ use Gyugie\HTTP\Curl;
 
 /**
  * [Gojek] GopayID Api PHP Class (Un-Official)
- * Author : mugypleci <https://github.com/mugypleci>
+ * Author : mugypleci <https://github.com/gyugie>
  * Created at 22-04-2020 14:26
- * Last Modified at 05-05-2020 18:26
+ * Last Modified at 11-11-2020
  */
 class GopayID
 {
