@@ -2,6 +2,7 @@
 namespace Gyugie;
 
 use Gyugie\HTTP\Curl;
+use Gyugie\Response\DefaultResponse;
 
 /**
  * [Gojek] GopayID Api PHP Class (Un-Official)
@@ -23,13 +24,13 @@ class GopayID
     const clientSecret = 'pGwQ7oi8bKqqwvid09UrjqpkMEHklb';
     const userAgent = 'Gojek/3.51 (com.go-jek.ios; build:6890866; iOS 13.3.1) Alamofire/3.51';
 
-    private $authToken;
+    private string $authToken;
     
-    private $pin;
-    
-    private $sessionId;
-    
-    private $uniqueId;
+    private int $pin;
+
+    private string $sessionId;
+
+    private string $uniqueId;
     
     private $curl;
     
@@ -51,17 +52,17 @@ class GopayID
         $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
         return strtoupper(vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4)));
     }
-    
-     /**
-	 * transferBank
-	 * 
+
+    /**
+     * transferBank
+     *
      * @param string $bankCode
      * @param string $bankNumber
      * @param float $amount
-     * @param integer $pin
-	 * @return \Namedevel\Response\DefaultResponse
-	 */
-    public function transferBank($bankCode, $bankNumber, $amount, $pin)
+     * @param int $pin
+     * @return Response\DefaultResponse|Response\WalletResponse
+     */
+    public function transferBank(string $bankCode, string $bankNumber, float $amount, int $pin)
     {
         $bankAccountName = self::getBankAccountName($bankCode, $bankNumber);
         $payload = array(
@@ -73,17 +74,17 @@ class GopayID
         self::setPin($pin);
 
         return $this->curl->post(self::Api2Url . '/v3/wallet/withdrawal/request', $payload, self::buildHeaders())->getResponse();
-    }  
+    }
 
     /**
-	 * transferGopayID
-	 * 
+     * transferGopayID
+     *
      * @param string $phoneNumber
      * @param float $amount
-     * @param integer $pin
-	 * @return \Namedevel\Response\DefaultResponse
-	 */
-    public function transferGopayID($phoneNumber, $amount, $pin)
+     * @param int $pin
+     * @return Response\DefaultResponse|Response\WalletResponse
+     */
+    public function transferGopayID(string $phoneNumber, float $amount, int $pin)
     {
         self::setPin($pin);
         $payload = array(
@@ -96,23 +97,23 @@ class GopayID
     }
 
     /**
-	 * setPin
-	 * 
-     * @param integer $pin
-	 * @return integer 
-	 */
-    protected function setPin($pin)
+     * setPin
+     *
+     * @param int $pin
+     * @return void
+     */
+    protected function setPin(int $pin)
     {
         $this->pin = $pin;
     }
 
     /**
-	 * getRealAmount
-	 * 
+     * getRealAmount
+     *
      * @param float $amount
-	 * @return \Namedevel\Response\DefaultResponse
-	 */
-    public function getRealAmount($amount)
+     * @return Response\DefaultResponse|Response\WalletResponse
+     */
+    public function getRealAmount(float $amount)
     {
         return $this->curl->get(self::Api2Url . '/wallet/withdrawal/request?amount=' . $amount, [], self::buildHeaders())->getResponse();
     }
@@ -120,30 +121,29 @@ class GopayID
      /**
 	 * getBankList
 	 * 
-	 * @return \Namedevel\Response\DefaultResponse
 	 */
     public function getBankList()
     {
         return $this->curl->get(self::Api2Url . '/v1/withdrawal/banks', [], self::buildHeaders())->getResponse();
     }
 
-     /**
-	 * getHistory
-	 * 
-     * @param integer $page
-     * @param integer $limit
-	 * @return \Namedevel\Response\DefaultResponse
-	 */
+    /**
+     * getHistory
+     *
+     * @param int $page
+     * @param int $limit
+     * @return Response\DefaultResponse|Response\WalletResponse
+     */
     public function getHistoryTransaction($page = 1, $limit = 20)
     {
         return $this->curl->get(self::Api2Url . "/wallet/history?" . http_build_query([ 'page' => $page, 'limit' => $limit ]), [], self::buildHeaders())->getResponse();
     }
 
-     /**
-	 * getProfile
-	 * 
-	 * @return \Namedevel\Response\DefaultResponse
-	 */
+    /**
+     * getProfile
+     *
+     * @return Response\DefaultResponse|Response\WalletResponse
+     */
     public function getProfile()
     {
         return $this->curl->get(self::Api2Url . '/gojek/v2/customer', [], self::buildHeaders())->getResponse();
@@ -152,7 +152,7 @@ class GopayID
     /**
 	 * getAuthToken
 	 * 
-	 * @return \Namedevel\Response\DefaultResponse
+	 * @return DefaultResponse
 	 */
     public function getBalance()
     {
@@ -160,11 +160,11 @@ class GopayID
     }
 
     /**
-	 * getQrid
-	 * 
-	 * @param String			$phoneNumber
-	 * @return \Namedevel\Response\WalletResponse
-	 */
+     * getQrid
+     *
+     * @param String $phoneNumber
+     * @return DefaultResponse|Response\WalletResponse
+     */
     public function getQrid($phoneNumber)
     {
         return $this->curl->get(self::Api2Url . '/wallet/qr-code?phone_number=' . urlencode($phoneNumber), [], self::buildHeaders())->getResponse();
@@ -175,7 +175,7 @@ class GopayID
 	 * 
 	 * @param String			$otpToken
      * @param String            $otpCode
-	 * @return \Namedevel\Response\DefaultResponse
+	 * @return DefaultResponse
 	 */
     public function getAuthToken($otpToken, $otpCode)
     {
@@ -197,7 +197,7 @@ class GopayID
 	 * 
 	 * @param String			$bankCode
      * @param String            $bankNumber
-	 * @return \Namedevel\Response\DefaultResponse
+	 * @return DefaultResponse
 	 */
     public function getBankAccountName($bankCode, $bankNumber)
     {
@@ -210,11 +210,11 @@ class GopayID
     }
 
     /**
-	 * LoginNumberPhone
-	 * 
-	 * @param String			$mobilePhone
-	 * @return \Namedevel\Response\LoginPhoneResponse
-	 */
+     * LoginNumberPhone
+     *
+     * @param $phoneNumber
+     * @return DefaultResponse|Response\WalletResponse
+     */
 	
     public function LoginNumberPhone($phoneNumber)
     {
