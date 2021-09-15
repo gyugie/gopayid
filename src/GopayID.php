@@ -12,17 +12,21 @@ use Gyugie\Response\DefaultResponse;
  */
 class GopayID
 {
-    const ApiUrl = 'https://goid.gojekapi.com';
-    const Api2Url = 'https://api.gojekapi.com';
-    const appId = 'com.go-jek.ios';
-    const phoneModel = 'Apple, iPhone11,6';
-    const phoneMake = 'Apple';
-    const osDevice = 'iOS, 13.3.1';
-    const xPlatform = 'iOS';
-    const appVersion = '3.51';
+    // const API_GOID = 'https://goid.gojekapi.com';
+    // const API_URL = 'https://api.gojekapi.com';
+    const API_URL = 'https://api.gojekapi.com';
+    const API_GOID = 'https://goid.gojekapi.com';
+    const API_CUSTOMER = 'https://customer.gopayapi.com';
     const clientId = 'gojek:consumer:app';
     const clientSecret = 'pGwQ7oi8bKqqwvid09UrjqpkMEHklb';
-    const userAgent = 'Gojek/3.51 (com.go-jek.ios; build:6890866; iOS 13.3.1) Alamofire/3.51';
+    const appId = 'com.go-jek.ios';
+    const phoneModel = 'Apple, iPhone XS Max';
+    const phoneMake = 'Apple';
+    const osDevice = 'iOS, 14.4.2';
+    const xPlatform = 'iOS';
+    const appVersion = '4.20.1';
+    const gojekCountryCode = 'ID';
+    const userAgent = 'Gojek/4.20.1 (com.go-jek.ios; build:15832942; iOS 14.4.2) Alamofire/4.20.1';
 
     private string $authToken;
     
@@ -37,9 +41,9 @@ class GopayID
     public function __construct($token = false)
     {
         $this->curl         = new Curl();
-        $this->sessionId    = '78EB815C-6AE5-4969-A6B1-BE5EC893F7AA'; // generated from self::uuidv4();
-        $this->uniqueId     = '5C816FEA-D93E-4910-B672-978FCFA992F2'; // generated from self::uuidv4();
-       
+        $this->sessionId = 'A78354AB-9578-4FF5-B899-4BA6BA16488E'; // generated from self::uuidv4();
+        $this->uniqueId  = 'A23194EB-8C6F-45B7-8A80-2606BA847DD8'; // generated from self::uuidv4();
+      
         if ($token) {
             $this->authToken = $token;
         }
@@ -51,6 +55,11 @@ class GopayID
         $data[6] = chr(ord($data[6]) & 0x0f | 0x40);
         $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
         return strtoupper(vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4)));
+    }
+
+    public function formatPhone($phoneNumber, $areacode = '')
+    {
+        return substr_replace($phoneNumber, $areacode, 0, 1);
     }
 
     /**
@@ -73,7 +82,7 @@ class GopayID
         );
         self::setPin($pin);
 
-        return $this->curl->post(self::Api2Url . '/v3/wallet/withdrawal/request', $payload, self::buildHeaders())->getResponse();
+        return $this->curl->post(self::API_URL . '/v3/wallet/withdrawal/request', $payload, self::buildHeaders())->getResponse();
     }
 
     /**
@@ -88,12 +97,21 @@ class GopayID
     {
         self::setPin($pin);
         $payload = array(
-            'qr_id' => self::getQrid($phoneNumber) ,
-            'amount' => $amount,
-            'description' => '💰'
+            'amount' => array(
+                'currency' => 'IDR',
+                'value' => $amount
+            ),
+            'description' => '💰',
+            'metadata' => array(
+                'post_visibility' => 'NO_SOCIAL',
+                'theme_id' => 'THEME_CLASSIC'
+            ),
+            'payee' => array(
+                'id' => self::getQrid($phoneNumber),
+                'id_type' => 'GOPAY_QR_ID'
+            )
         );
-
-        return $this->curl->post(self::Api2Url . '/v2/fund/transfer', $payload, self::buildHeaders())->getResponse();
+        return $this->curl->post(self::API_CUSTOMER . '/v1/funds/transfer', $payload, self::buildHeaders())->getResponse();
     }
 
     /**
@@ -115,7 +133,7 @@ class GopayID
      */
     public function getRealAmount(float $amount)
     {
-        return $this->curl->get(self::Api2Url . '/wallet/withdrawal/request?amount=' . $amount, [], self::buildHeaders())->getResponse();
+        return $this->curl->get(self::API_URL . '/wallet/withdrawal/request?amount=' . $amount, [], self::buildHeaders())->getResponse();
     }
 
      /**
@@ -124,7 +142,7 @@ class GopayID
 	 */
     public function getBankList()
     {
-        return $this->curl->get(self::Api2Url . '/v1/withdrawal/banks', [], self::buildHeaders())->getResponse();
+        return $this->curl->get(self::API_CUSTOMER . "/v1/banks?type=transfer&show_withdrawal_block_status=false", [], self::buildHeaders())->getResponse();
     }
 
     /**
@@ -136,7 +154,7 @@ class GopayID
      */
     public function getHistoryTransaction($page = 1, $limit = 20)
     {
-        return $this->curl->get(self::Api2Url . "/wallet/history?" . http_build_query([ 'page' => $page, 'limit' => $limit ]), [], self::buildHeaders())->getResponse();
+        return $this->curl->get(self::API_CUSTOMER . "/v1/users/transaction-history?page={$page}&limit={$limit}", [], self::buildHeaders())->getResponse();
     }
 
     /**
@@ -146,7 +164,7 @@ class GopayID
      */
     public function getProfile()
     {
-        return $this->curl->get(self::Api2Url . '/gojek/v2/customer', [], self::buildHeaders())->getResponse();
+        return $this->curl->get(self::API_URL . "/gojek/v2/customer", [], self::buildHeaders())->getResponse();
     }
 
     /**
@@ -156,7 +174,7 @@ class GopayID
 	 */
     public function getBalance()
     {
-        return $this->curl->get(self::Api2Url . '/wallet/profile', [], self::buildHeaders())->getResponse();
+        return $this->curl->get(self::API_CUSTOMER . "/v1/payment-options/balances", [], self::buildHeaders())->getResponse();
     }
 
     /**
@@ -167,7 +185,7 @@ class GopayID
      */
     public function getQrid($phoneNumber)
     {
-        return $this->curl->get(self::Api2Url . '/wallet/qr-code?phone_number=' . urlencode($phoneNumber), [], self::buildHeaders())->getResponse();
+        return $this->curl->get(self::API_URL . '/wallet/qr-code?phone_number=' . urlencode($phoneNumber), [], self::buildHeaders())->getResponse();
     }
 
     /**
@@ -180,16 +198,16 @@ class GopayID
     public function getAuthToken($otpToken, $otpCode)
     {
         $payload = array(
+            'client_id' => self::clientId,
+            'client_secret' => self::clientSecret,
             'data' => array(
                 'otp_token' => $otpToken,
                 'otp' => $otpCode
-            ) ,
-            'client_id' => self::clientId,
-            'grant_type' => 'otp',
-            'client_secret' => self::clientSecret
+            ),
+            'grant_type' => 'otp'
         );
 
-        return $this->curl->post(self::ApiUrl . '/goid/token', $payload, self::buildHeaders())->getResponse();
+        return $this->curl->post(self::API_GOID . '/goid/token', $payload, self::buildHeaders())->getResponse();
     }
 
     /**
@@ -206,7 +224,7 @@ class GopayID
             'bank_account_number' => $bankNumber
         );
 
-        return $this->curl->post(self::Api2Url . '/v1/withdrawal/account/validate', $payload, self::buildHeaders())->getResponse();
+        return $this->curl->post(self::API_URL . '/v1/withdrawal/account/validate', $payload, self::buildHeaders())->getResponse();
     }
 
     /**
@@ -222,10 +240,10 @@ class GopayID
             'client_id' => self::clientId,
             'client_secret' => self::clientSecret,
             'country_code' => '+62',
-            'phone_number' => $phoneNumber
+            'magic_link_ref' => null,
+            'phone_number' => self::formatPhone($phoneNumber)
         );
-
-        return $this->curl->post(self::ApiUrl . '/goid/login/request', $payload, self::buildHeaders())->getResponse();
+        return $this->curl->post(self::API_GOID . '/goid/login/request', $payload, self::buildHeaders())->getResponse();
     }
 
     /**
@@ -245,6 +263,7 @@ class GopayID
             'x-deviceos: ' . self::osDevice,
             'x-platform: ' . self::xPlatform,
             'x-appversion: ' . self::appVersion,
+            'Gojek-Country-Code: ' . self::gojekCountryCode,
             'accept: */*',
             'content-type: application/json',
             'x-user-type: customer'
@@ -253,11 +272,15 @@ class GopayID
         if (!empty($this->authToken)) {
             array_push($headers, 'Authorization: Bearer ' . $this->authToken);
         }
+        
         if (!empty($this->pin)) {
             array_push($headers, 'pin: ' . $this->pin);
         }
-
-      
+        
+        if (!empty($this->idKey)) {
+            array_push($headers, 'Idempotency-Key: ' . $this->idKey);
+        }
+        
         return $headers;
     }
 
@@ -269,7 +292,7 @@ class GopayID
 	
 	public function logout()
 	{
-		return $this->curl->delete(self::Api2Url . '/v3/auth/token', [], self::buildHeaders())->getResponse();
+		return $this->curl->delete(self::API_URL . '/v3/auth/token', [], self::buildHeaders())->getResponse();
 	}
 
 }

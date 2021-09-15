@@ -4,6 +4,7 @@ use PHPUnit\Framework\TestCase;
 use Gyugie\Response\BalanceResponse;
 use Gyugie\Response\LoginAuthResponse;
 use Gyugie\Response\LoginPhoneResponse;
+use Gyugie\GopayId;
 
 class GopayIDTest extends TestCase
 {

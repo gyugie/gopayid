@@ -18,8 +18,6 @@ class ParseResponse
 		
 		if ($parts['path'] == '/wallet/qr-code') {
 			$this->response = new \Gyugie\Response\WalletResponse($res_json);
-		} else if ($parts['path'] == '/wallet/history') {
-			$this->response = new \Gyugie\Response\DefaultResponse($res_json);
 		} else {
 			$this->response =  new \Gyugie\Response\DefaultResponse($res_json);
 		}
