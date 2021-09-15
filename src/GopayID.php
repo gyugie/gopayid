@@ -12,8 +12,6 @@ use Gyugie\Response\DefaultResponse;
  */
 class GopayID
 {
-    // const API_GOID = 'https://goid.gojekapi.com';
-    // const API_URL = 'https://api.gojekapi.com';
     const API_URL = 'https://api.gojekapi.com';
     const API_GOID = 'https://goid.gojekapi.com';
     const API_CUSTOMER = 'https://customer.gopayapi.com';
@@ -38,15 +36,22 @@ class GopayID
     
     private $curl;
     
-    public function __construct($token = false)
+    public function __construct($session_id = null, $unique_id = null, $token = null)
     {
         $this->curl         = new Curl();
-        $this->sessionId = 'A78354AB-9578-4FF5-B899-4BA6BA16488E'; // generated from self::uuidv4();
-        $this->uniqueId  = 'A23194EB-8C6F-45B7-8A80-2606BA847DD8'; // generated from self::uuidv4();
-      
+        
+        if($session_id) {
+            $this->sessionId = $session_id;
+        }
+
+        if($unique_id) {
+            $this->uniqueId = $unique_id;
+        }
+
         if ($token) {
             $this->authToken = $token;
         }
+
     }
     
     public function uuidv4()
@@ -55,6 +60,16 @@ class GopayID
         $data[6] = chr(ord($data[6]) & 0x0f | 0x40);
         $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
         return strtoupper(vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4)));
+    }
+
+    public function getSessionId(): string
+    {
+        return $this->sessionId;
+    }
+
+    public function getUniqueId(): string
+    {
+        return $this->uniqueId;
     }
 
     public function formatPhone($phoneNumber, $areacode = '')
