@@ -45,4 +45,13 @@ JSON;
 		$this->assertEquals("2500", $balance);
     }
 
+	public function testPhoneNumber()
+	{
+		$gopay = new GopayId();
+
+		$phone_number = $gopay->formatPhone('089111111111');
+		
+		$this->assertTrue($phone_number === '89111111111');
+	}
+
 }

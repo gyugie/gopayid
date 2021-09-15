@@ -59,6 +59,12 @@ class GopayID
 
     public function formatPhone($phoneNumber, $areacode = '')
     {
+        $local_country_code = substr_replace($phoneNumber, $areacode, 2);
+
+        if ((int) $local_country_code === 62) {
+            return substr_replace($phoneNumber, $areacode, 0, 2);
+        };
+
         return substr_replace($phoneNumber, $areacode, 0, 1);
     }
 
